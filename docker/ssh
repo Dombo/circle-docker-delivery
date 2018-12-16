@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+PRIMARY_CONTAINER_NAME=$1
+PROJECT_DIR=$2
+docker exec -ti $PRIMARY_CONTAINER_NAME /bin/bash

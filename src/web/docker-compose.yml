@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+
+  development:
+    container_name: monorepo-core-development
+    image: monorepo/development:latest
+    build:
+      context: .
+    volumes:
+      - ../../:/usr/src:delegated
+    environment:
+      NODE_ENV: development
+    ports:
+      - '3000-3030:3000-3030'
+    stdin_open: true
+    tty: true
+    entrypoint: /bin/sh -l

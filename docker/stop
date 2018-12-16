@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+PRIMARY_CONTAINER_NAME=$1
+PROJECT_DIR=$2
+docker-compose --file $PROJECT_DIR/docker-compose.yml kill
+docker-compose --file $PROJECT_DIR/docker-compose.yml rm -f

@@ -1,0 +1,28 @@
+###
+# Continuous Delivery Streams
+###
+# * Docker containers as the release artefact
+# * Docker containers as the development, build & continuous integration environment
+# - (testing the code within the container is out of scope for this poc)
+###
+# Goals
+###
+# *Fast* pre-test steps
+#   - static analysis
+#     * style lint
+#     * upstream dependency vuln scan
+#     * AST complexity analysis
+#     * security lint
+#     * simple project/folder metrics
+#     * bash script linter
+#     * stylesheet linter
+#     * html linter
+#     * terraform linter
+#     * markdown linter
+#     * docker linter
+#
+# *Parallelise* everything expensive
+# Use docker-compose to orchestrate complex interdependencies for testing
+#   - This requires the machine executor so a slower startup
+# Build your code while you test the code
+# Copy the built code into a slimmed down release image and push to registry

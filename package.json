@@ -1,0 +1,19 @@
+{
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "build-container": "./docker/build",
+    "build:dev-container": "npm run build-container -- null null --target=dev",
+    "build:ci-container": "npm run build-container -- null null --target=ci",
+    "launch-container": "./docker/launch",
+    "run-container": "./docker/run",
+    "ssh-container": "./docker/ssh",
+    "stop-container": "./docker/stop",
+    "launch:core": "npm run launch-container -- monorepo-core-development ./src/web --target=dev",
+    "ssh:core": "npm run ssh-container -- monorepo-core-development ./src/web",
+    "stop:core": "npm run stop-container -- monorepo-core-development ./src/web"
+  },
+  "devDependencies": {
+    "lerna": "^3.6.0"
+  }
+}
