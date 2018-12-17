@@ -77,3 +77,7 @@ TARGET_LAYER=[ci|dev|build|release] or any stage in the multi-stage hierarchy yo
 
 Inspect the goss.yaml copied out at the end of this process.
 More details can be found in the [dgoss](https://github.com/aelsabbahy/goss/tree/master/extras/dgoss) documentation.
+
+##### Further Reading
+
+[Testing Strategies for Docker Containers](https://alexei-led.github.io/post/docker_testing/)
