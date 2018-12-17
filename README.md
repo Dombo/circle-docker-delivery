@@ -1,7 +1,9 @@
 ---
 
+An example of leveraging docker throughout your entire development process.
+Delivering a consistent environment while maintaining the benefits of tooling and a minimal production image.
 
-### Purpose
+### Motivation
 
 This repository demonstrates shipping a consistent build, development & continuous integration environment through multi-stage builds.
 You can leverage this pattern to ship a minimal release artefact - this offers benefits when it comes to elastic workloads.
@@ -19,9 +21,13 @@ At this point you've built, tested & developed your project against a base runti
 You've then gone on to run the application - against the same base runtime - without having to recompile/link it.
 If you had expensive compilation steps during dependency installation for example, such as compiling native extensions for database adapters - you'd avoid having to run these twice while still delivering a minimal artefact.
 
-### Dockerfile Hierarchy
+### Components
 
-##### Application
+- [CircleCI](https://circleci.com/docs/)
+- [Docker](https://docs.docker.com/engine/reference/builder/)
+- [Goss](https://github.com/aelsabbahy/goss)
+
+### Dockerfile Hierarchy
 
 ```
                                           
