@@ -28,6 +28,8 @@
 # Copy the built code into a slimmed down release image and push to registry
 version: 2.1
 
+# NOTE! You will need to opt in to allow this to run, at the org level in CircleCI
+# https://circleci.com/{VCS_TYPE}/organizations/{ORG_NAME}/settings#security
 orbs:
   circle-compare-url: iynere/compare-url@0.1.5
 
