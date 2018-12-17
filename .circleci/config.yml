@@ -35,7 +35,8 @@ orbs:
 
 jobs:
   build_container: &build_container
-    machine: true
+    machine:
+      image: circleci/classic:edge
     working_directory: ~/build-container
     shell: /bin/bash -eol pipefail
     parameters:
@@ -81,11 +82,6 @@ jobs:
 
           curl -fsSL https://goss.rocks/install | sh
           goss -version
-
-    - run:
-        name: setup test results dir
-        command: |
-          mkdir test-results
 
     - run:
         name: Build, Test, Publish Images
