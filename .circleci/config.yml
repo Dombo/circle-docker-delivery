@@ -42,7 +42,6 @@ jobs:
       scheduled-workflow:
         type: boolean
         default: false
-    parallelism: 4
     steps:
     - checkout
     - run:
