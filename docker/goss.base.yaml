@@ -1,0 +1,5 @@
+file:
+  # ensure git exists
+  /usr/bin/git:
+    exists: true
+

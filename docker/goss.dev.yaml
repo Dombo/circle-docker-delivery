@@ -1,0 +1,5 @@
+file:
+  # ensure monorepo exists
+  /usr/bin/monorepo:
+    exists: true
+

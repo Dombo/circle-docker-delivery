@@ -1,0 +1,4 @@
+file:
+  # ensure chromium exists for runtime PDF generation
+  /usr/bin/chromium:
+    exists: true

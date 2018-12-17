@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+set -eu
+
+# Build a target layer with goss commands/entrypoint
+# Boot into the target layer using dgoss & run tests to stdout & to test results on disk
+# If it is a release driven target layer i.e. CI - push it to registry
+#
+#   test [base|ci]
+
+TARGET_LAYER=$1
+
+function run_goss_tests() {
+    # prepare goss file
+    cp ./docker/goss.${TARGET_LAYER}.yaml ./goss.yaml
+
+    # build our test image
+    echo "----------------------------------------------------------------------------------------------------"
+    echo "building modified test image: $TARGET_LAYER-goss..."
+    echo "----------------------------------------------------------------------------------------------------"
+    docker build -t $TARGET_LAYER-goss --build-arg TARGET_TEST_LAYER=$TARGET_LAYER -f docker/Dockerfile . --target=test || (sleep 2; echo "retry building $TARGET_LAYER-goss"; docker build -t $TARGET_LAYER-goss --build-arg TARGET_TEST_LAYER=$TARGET_LAYER -f docker/Dockerfile . --target=test)
+
+    # run goss tests
+    echo "----------------------------------------------------------------------------------------------------"
+    echo "running goss tests on $TARGET_LAYER-goss..."
+    echo "----------------------------------------------------------------------------------------------------"
+
+    # run once with normal output, for stdout
+    dgoss run $TARGET_LAYER-goss
+
+    # save JUnit output to variable so we can control what we store
+    export GOSS_OPTS="--format junit"
+    results=$(dgoss run $TARGET_LAYER-goss)
+
+    TEST_OUTPUT_DIR="./docker/build-container/test-results/$TARGET_LAYER"
+
+    mkdir -p $TEST_OUTPUT_DIR
+
+    echo '<?xml version="1.0" encoding="UTF-8"?>' > \
+      $TEST_OUTPUT_DIR/goss.xml
+    echo "${results#*<?xml version=\"1.0\" encoding=\"UTF-8\"?>}" | \
+      sed "s|testsuite name=\"goss\"|testsuite name=\"$TARGET_LAYER\"|g" >> \
+      $TEST_OUTPUT_DIR/goss.xml
+
+    if [ ! -z ${CIRCLECI:=''} ]
+        then
+            echo "----------------------------------------------------------------------------------------------------"
+            echo "removing goss variant..."
+            echo "----------------------------------------------------------------------------------------------------"
+            docker image rm $TARGET_LAYER-goss
+            echo "----------------------------------------------------------------------------------------------------"
+    fi
+}
+
+function cleanup() {
+  if [ ! -z ${CIRCLECI:=''} ]
+    then
+      echo "Removing ./docker/build-container"
+      rm -r ./docker/build-container
+      echo "Removing ./goss.yaml"
+      rm ./goss.yaml
+  fi
+}
+trap cleanup EXIT
+
+run_goss_tests
+
+#if [ ! -z ${CIRCLECI:=''} ]
+#    then
+#        echo "----------------------------------------------------------------------------------------------------"
+#        echo "pushing $TARGET_LAYER image to registry"
+#        echo "----------------------------------------------------------------------------------------------------"
+#        docker push $TARGET_LAYER
+#        echo "----------------------------------------------------------------------------------------------------"
+#fi

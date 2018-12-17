@@ -9,6 +9,12 @@
     "run-container": "./docker/run",
     "ssh-container": "./docker/ssh",
     "stop-container": "./docker/stop",
+    "test-container": "./docker/test",
+    "test:base-container": "npm run test-container -- base",
+    "test:build-container": "npm run test-container -- build",
+    "test:ci-container": "npm run test-container -- ci",
+    "test:dev-container": "npm run test-container -- dev",
+    "test:release-container": "npm run test-container -- release",
     "launch:core": "npm run launch-container -- monorepo-core-development ./src/web --target=dev",
     "ssh:core": "npm run ssh-container -- monorepo-core-development ./src/web",
     "stop:core": "npm run stop-container -- monorepo-core-development ./src/web"

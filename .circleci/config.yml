@@ -26,3 +26,122 @@
 #   - This requires the machine executor so a slower startup
 # Build your code while you test the code
 # Copy the built code into a slimmed down release image and push to registry
+version: 2.1
+
+orbs:
+  circle-compare-url: iynere/compare-url@0.1.5
+
+jobs:
+  build_container: &build_container
+    machine: true
+    working_directory: ~/build-container
+    shell: /bin/bash -eol pipefail
+    parameters:
+      scheduled-workflow:
+        type: boolean
+        default: false
+    parallelism: 4
+    steps:
+    - checkout
+    - run:
+        name: Registry Login
+        command: echo "Great place to login to the registry"
+
+    - unless:
+        condition: <<parameters.scheduled-workflow>>
+        steps:
+        - circle-compare-url/reconstruct:
+            project-path: ~/build-container
+
+        - run:
+            name: only proceed if `docker/goss.yaml` `docker/Dockerfile` were modified (unless we're on master)
+            command: |
+              set -u
+
+              # save value stored in file to a local env var
+              CIRCLE_COMPARE_URL=$(cat CIRCLE_COMPARE_URL.txt)
+
+              # borrowed from https://discuss.circleci.com/t/does-circleci-2-0-work-with-monorepos
+
+              COMMIT_RANGE=$(echo $CIRCLE_COMPARE_URL | sed 's:^.*/compare/::g')CI
+              echo "Commit range: $COMMIT_RANGE"
+
+              if [[ ! $(git diff $COMMIT_RANGE --name-status | grep -e "docker/goss.yaml" -e "docker/Dockerfile") && "$CIRCLE_BRANCH" != "master" ]]; then
+                circleci step halt
+              fi
+
+    - run:
+        name: Install goss & dgoss (orbify this later)
+        command: |
+          # rather than give internet scripts SU rights, we install to local user bin and add to path
+
+          # can't set these as normal job env vars, b/c they're overriden by the env section in the platform-specific jobs
+          export GOSS_DST=~/bin
+
+          curl -fsSL https://goss.rocks/install | sh
+          goss -version
+
+    - run:
+        name: setup test results dir
+        command: |
+          mkdir test-results
+
+    - run:
+        name: Build, Test, Publish Images
+        command: |
+          ./docker/test $STAGE
+
+    - store_test_results:
+        path: docker/build-container/test-results
+
+  build_base_container:
+    <<: *build_container
+    environment:
+      - STAGE: base
+
+  build_build_container:
+    <<: *build_container
+    environment:
+    - STAGE: build
+
+  build_ci_container:
+    <<: *build_container
+    environment:
+    - STAGE: ci
+
+  build_dev_container:
+    <<: *build_container
+    environment:
+    - STAGE: dev
+
+  build_release_container:
+    <<: *build_container
+    environment:
+    - STAGE: release
+
+#cron_build_containers_workflow_filters: &cron_build_containers_workflow_filters
+#  scheduled-workflow: true
+
+commit_build_containers_workflow_filters: &commit_build_containers_workflow_filters
+  scheduled-workflow: false
+
+workflows:
+  version: 2
+#  build_test_release_containers: # You could run this on schedule to ensure you have a green pipeline at all times
+#    triggers:
+#    - schedule:
+#        cron: "0 0 * * *"
+#        filters:
+#          branches:
+#            only:
+#            - master
+#    jobs:
+#    - build_containers:        *cron_build_containers_workflow_filters
+
+  commit_test_containers:
+    jobs:
+    - build_base_container:        *commit_build_containers_workflow_filters
+    - build_build_container:        *commit_build_containers_workflow_filters
+    - build_ci_container:        *commit_build_containers_workflow_filters
+    - build_dev_container:        *commit_build_containers_workflow_filters
+    - build_release_container:        *commit_build_containers_workflow_filters

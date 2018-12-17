@@ -1,0 +1,13 @@
+file:
+  # ensure a basic shell exists
+  /bin/sh:
+    exists: true
+
+  # ensure basic directory structure created
+  /home/circleci:
+    exists: true
+
+user:
+  # ensure circleci user exists
+  circleci:
+    exists: true

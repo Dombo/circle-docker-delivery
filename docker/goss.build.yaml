@@ -1,0 +1,4 @@
+file:
+  # ensure npm exists as it runs our tasks
+  /usr/local/bin/npm:
+    exists: true

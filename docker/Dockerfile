@@ -1,3 +1,5 @@
+# This has to come first to allow the dynamic test layer generation
+ARG TARGET_TEST_LAYER=base
 ###
 # Upstream: https://github.com/nodejs/docker-node/blob/master/10/stretch/Dockerfile
 FROM node:10.14.1-stretch as base
@@ -32,7 +34,7 @@ RUN apt-get update && apt-get install -y \
       fonts-symbola \
       --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
-ENV CHROME_BIN=/usr/bin/chromium-browser
+ENV CHROME_BIN=/usr/bin/chromium
 ENV CHROME_PATH=/usr/lib/chromium/
 CMD ["/bin/bash"]
 
@@ -139,3 +141,14 @@ RUN npm install -g \
 CMD ["/bin/bash"]
 
 FROM base as release
+CMD ["/bin/bash"]
+
+###
+# Testing layers
+###
+# docker build --build-arg TARGET_TEST_LAYER=[ci|dev|build|release] .
+#   The above allows you to test multiple layers using the ./docker/test script
+FROM $TARGET_TEST_LAYER as test
+COPY docker/goss-entrypoint.sh /
+RUN sudo chmod +x /goss-entrypoint.sh || chmod +x /goss-entrypoint.sh
+ENTRYPOINT ["/goss-entrypoint.sh"]
