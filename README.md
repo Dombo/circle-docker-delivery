@@ -17,6 +17,8 @@ Consult `.circleci/config.yml` for more detail.
 If you implemented this in production, you'd use the CI stage to run your tests & build your source artefacts (source code).
 You would copy the output (transpiled etc.) into the release container & deploy it.
 
+### Benefits
+
 At this point you've built, tested & developed your project against a base runtime - with all the benefits of additional tooling.
 You've then gone on to run the application - against the same base runtime - without having to recompile/link it.
 If you had expensive compilation steps during dependency installation for example, such as compiling native extensions for database adapters - you'd avoid having to run these twice while still delivering a minimal artefact.
